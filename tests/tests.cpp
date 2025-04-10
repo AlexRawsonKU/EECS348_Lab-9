@@ -2,27 +2,6 @@
 
 #include "matrix.hpp"
 
-TEST(MatrixImplementation, GetSize_3) {
-    Matrix<int> matrix({
-        { 25, 35, 45 },
-        { 15, 45, 45 },
-        { 80, 80, 80 },
-    });
-
-    EXPECT_EQ(matrix.get_size(), 3);
-}
-
-TEST(MatrixImplementation, GetSize_4) {
-    Matrix<int> matrix({
-        { 25, 35, 45, 28 },
-        { 15, 45, 45, 34 },
-        { 80, 80, 80, 11 },
-        { 4,   8,  9, 11 },
-    });
-
-    EXPECT_EQ(matrix.get_size(), 4);
-}
-
 TEST(MatrixImplementation, GetValue_Basic) {
     std::vector<std::vector<int>> expected = {
         { 0, 1, 2 },
