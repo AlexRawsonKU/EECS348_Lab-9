@@ -41,7 +41,7 @@ public:
             for (size_t col = 0; col < _width; col++)
             {
                 // fill in the value using the bounds-checked array accessor (in case of user error)
-                _buffer[idx(col, row, _width)] = nums.at(row).at(col);
+                _buffer[idx(col, row)] = nums.at(row).at(col);
             }
         }
     }
@@ -81,7 +81,7 @@ public:
             {
                 for (size_t i = 0; i < _width; i++)
                 {
-                    result._buffer[idx(col, row, result._width)] += get_value(row, i) * rhs.get_value(i, col);
+                    result._buffer[result.idx(col, row)] += get_value(row, i) * rhs.get_value(i, col);
                 }
             }
         }
@@ -90,12 +90,12 @@ public:
 
     void set_value(std::size_t row, std::size_t col, T n)
     {
-        _buffer.at(idx(col, row, _width)) = n;
+        _buffer.at(idx(col, row)) = n;
     }
 
     T get_value(std::size_t row, std::size_t col) const
     {
-        return _buffer.at(idx(col, row, _width));
+        return _buffer.at(idx(col, row));
     }
 
     T sum_diagonal_major() const
@@ -132,7 +132,7 @@ public:
         }
         for (size_t col = 0; col < _width; col++)
         {
-            std::swap(_buffer[idx(col, r1, _width)], _buffer[idx(col, r2, _width)]);
+            std::swap(_buffer[idx(col, r1)], _buffer[idx(col, r2)]);
         }
     }
 
@@ -144,7 +144,7 @@ public:
         }
         for (size_t row = 0; row < _height; row++)
         {
-            std::swap(_buffer[idx(c1, row, _width)], _buffer[idx(c2, row, _width)]);
+            std::swap(_buffer[idx(c1, row)], _buffer[idx(c2, row)]);
         }
     }
 
@@ -154,11 +154,14 @@ public:
         {
             for (size_t x = 0; x < _width; x++)
             {
-                std::cout << _buffer[idx(x, y, _width)] << "\t";
+                std::cout << _buffer[idx(x, y)] << "\t";
             }
             std::cout << std::endl;
         }
     }
+
+    size_t width() const { return _width; }
+    size_t height() const { return _height; }
 
 private:
     size_t _width, _height;
@@ -173,7 +176,7 @@ private:
     */
     std::vector<T> _buffer;
 
-    static inline size_t idx(size_t col, size_t row, size_t _width) { return col + row * _width; }
+    inline size_t idx(size_t col, size_t row) const { return col + row * _width; }
 };
 
 #endif // __MATRIX_HPP__

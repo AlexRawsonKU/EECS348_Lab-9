@@ -3,17 +3,17 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <limits>
 
-Matrix<int> read_square_matrix(size_t size, std::ifstream &file)
+template <typename T>
+Matrix<T> read_square_matrix(size_t size, std::ifstream &file)
 {
-    Matrix<int> matrix(size);
+    Matrix<T> matrix(size);
 
     for (size_t row = 0; row < size; row++)
     {
         for (size_t col = 0; col < size; col++)
         {
-            int value = -1;
+            T value = {};
             file >> value;
             matrix.set_value(row, col, value);
         }
@@ -22,20 +22,9 @@ Matrix<int> read_square_matrix(size_t size, std::ifstream &file)
     return matrix;
 }
 
-int main()
+template <typename T>
+void process(Matrix<T> m1, Matrix<T> m2)
 {
-    // read a filename
-    std::string filename;
-    std::cout << "Enter a filename: ";
-    std::cin >> filename;
-
-    // 1. Read values from a file into the matrix
-    std::ifstream input_file(filename);
-    size_t n = -1;
-    input_file >> n;
-
-    Matrix<int> m1 = read_square_matrix(n, input_file);
-    Matrix<int> m2 = read_square_matrix(n, input_file);
 
     std::cout << "Matrix A:\n";
     m1.print_matrix();
@@ -66,10 +55,10 @@ int main()
     std::cout << "Notice: Swapped rows are permanent from this point on.\n";
     std::cout << "Pick a row to swap (0-indexed, enter out-of-bound value to skip): ";
     std::cin >> swap_row1;
-    if (swap_row1 < n)
+    if (swap_row1 < m1.height())
     {
         size_t swap_row2 = -1;
-        while (swap_row2 < 0 || swap_row2 >= n)
+        while (swap_row2 >= m1.height())
         {
             std::cout << "Pick a row to swap it with (no longer skippable): ";
             std::cin >> swap_row2;
@@ -92,16 +81,16 @@ int main()
     size_t swap_col1;
     std::cout << "Pick a column to swap (0-indexed, enter out-of-bound value to skip): ";
     std::cin >> swap_col1;
-    if (swap_col1 < n)
+    if (swap_col1 < m1.width())
     {
-        size_t swap_col2 = std::numeric_limits<size_t>::max();
-        while (swap_col2 == std::numeric_limits<size_t>::max() || swap_col2 >= n)
+        size_t swap_col2 = -1;
+        while (swap_col2 >= m1.width())
         {
             std::cout << "Pick a column to swap it with (no longer skippable): ";
             std::cin >> swap_col2;
         }
-        m1.swap_rows(swap_col1, swap_col2);
-        m2.swap_rows(swap_col1, swap_col2);
+        m1.swap_cols(swap_col1, swap_col2);
+        m2.swap_cols(swap_col1, swap_col2);
 
         std::cout << "\nSwapped Matrix A:\n";
         m1.print_matrix();
@@ -115,13 +104,13 @@ int main()
     }
 
     // 7. Update matrix rows and display the result:
-    int new_value_row = -1;
+    size_t new_value_row = -1;
     std::cout << "Enter the index of a row for the value to modify on Matrix A (0-based, enter out-of-bound value to skip): ";
     std::cin >> new_value_row;
-    if (new_value_row >= 0 && new_value_row < n)
+    if (new_value_row <= m1.height())
     {
-        int new_value_col = -1;
-        while (new_value_col < 0 || new_value_col >= n)
+        size_t new_value_col = -1;
+        while (new_value_col >= m1.width())
         {
             std::cout << "Pick the index of a column to swap it with (no longer skippable): ";
             std::cin >> new_value_col;
@@ -140,6 +129,44 @@ int main()
     else
     {
         std::cout << "Skipping value modifications!" << std::endl;
+    }
+}
+
+int main()
+{
+    // read a filename
+    std::string filename;
+    std::cout << "Enter a filename: ";
+    std::cin >> filename;
+
+    // 1. Read values from a file into the matrix
+    std::ifstream input_file(filename);
+    if (!input_file.is_open())
+    {
+        std::cerr << "failed to open " << filename << std::endl;
+        return 1;
+    }
+    size_t n = -1;
+    input_file >> n;
+    size_t format = -1; // 0 = int, 1 = double
+    input_file >> format;
+
+    if (format == 0)
+    {
+        Matrix<int> m1 = read_square_matrix<int>(n, input_file);
+        Matrix<int> m2 = read_square_matrix<int>(n, input_file);
+        process(m1, m2);
+    }
+    else if (format == 1)
+    {
+        Matrix<double> m1 = read_square_matrix<double>(n, input_file);
+        Matrix<double> m2 = read_square_matrix<double>(n, input_file);
+        process(m1, m2);
+    }
+    else
+    {
+        std::cerr << "unknown format number" << n << std::endl;
+        return 1;
     }
 
     return 0;
